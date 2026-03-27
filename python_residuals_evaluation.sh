@@ -15,7 +15,7 @@
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 SCRIPT1=$SCRIPT_DIR/01_SVI.py
 SCRIPT2=$SCRIPT_DIR/01_SVI_OD.py
-export BATCH_DIR=${BATCH_DIR:-$SCRIPT_DIR}
+export BATCH_DIR=${BATCH_DIR:-data}
 SEED=$SLURM_ARRAY_TASK_ID
 DESIGN=${DESIGN:-ED}   # default ED
 OD=${OD:-0}
