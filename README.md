@@ -1,4 +1,4 @@
-# Bayesian experimental design: simulation study for detecting drug interactions
+# BED Simulation: Detecting Interactions
 
 This is a simulation study for **Bayesian experimental design (ED)** to detect drug interactions. The project compares ED to four baseline strategies (UD, RD, PD, OD) for sequentially selecting drug combination experiments, using Pyro for Bayesian Experimental Design (ED) and Stochastic Variational Inference (SVI). 
 
@@ -21,27 +21,30 @@ All subsequent commands use `uv run`, so no manual environment activation is nee
 
 ## Running the Pipeline
 
-Scripts are meant to be run in order. The typical workflow is:
+Scripts are meant to be run in order. They can be run both locally or on a Server. 
+
+### Locally
+
+This is only used for testing the code. The typical workflow is:
 
 ```bash
-# Step 0: Generate ground truth parameters (run once)
+# Step 0: Set Batch directory and generate ground truth parameters (run once)
+export BATCH_DIR=/path/to/output/dir
 uv run 00_create_underlying_truth.py
 
-# Step 1: Run sequential SVI: Experimental design (ED), Uniform design (UD), Restricted design (RD), Permutation design (PD)
+# Step 1.1: Run sequential SVI: Experimental design (ED), Uniform design (UD), Restricted design (RD), Permutation design (PD), Optimal design (OD)
 uv run 01_SVI.py --seed 1 --n_rounds 1 --procedure ED --num_steps_SVI 10
 uv run 01_SVI.py --seed 1 --n_rounds 1 --procedure UD --num_steps_SVI 10 
 uv run 01_SVI.py --seed 1 --n_rounds 1 --procedure RD --num_steps_SVI 10 
 uv run 01_SVI.py --seed 1 --n_rounds 1 --procedure PD --num_steps_SVI 10 
-
-# Step 1 alternative: Run sequential SVI: Optimal design (OD)
 uv run 01_SVI_OD.py --seed 1 --n_rounds 1 --num_steps_SVI 10
 
 # Step 2: Merge results across seeds
-uv run 02_merge_files.py  
-uv run 02_merge_files.py --ED
-uv run 02_merge_files.py --UD
-uv run 02_merge_files.py --PD
-uv run 02_merge_files.py --OD
+uv run 02_merge_files.py        # RD
+uv run 02_merge_files.py --ED   # ED
+uv run 02_merge_files.py --UD   # UD
+uv run 02_merge_files.py --PD   # PD
+uv run 02_merge_files.py --OD   # OD
 
 # Step 3: Generate all analysis plots
 uv run 03_plotting.py
@@ -61,7 +64,7 @@ Both `01_SVI.py` and `01_SVI_OD.py` share:
 `01_SVI.py` only:
 - `--procedure`: `ED` (experimental design), `UD` (uniform random), `RD` (restricted design), `PD` (permutation design)
 
-## Running on the ETH Euler Cluster (SLURM)
+### Running on the ETH Euler Cluster (SLURM)
 
 The script [python_residuals_evaluation.sh](python_residuals_evaluation.sh) submits a SLURM job array over 1000 seeds. It uses `uv run` directly, so no manual environment activation is needed.
 
@@ -113,8 +116,8 @@ There are `1 + D + D*(D-1)/2 = 11` candidates (no drug, each single drug, each p
 | Procedure | Selection strategy |
 |---|---|
 | ED | Experimental Design: Maximize Expected Information Gain (EIG) via `marginal_eig` from `pyro.contrib.oed` |
-| UD | Uniform Design: Uniformly choses candidates across all types |
-| RD | Restricted Design: Uniformly choses candidates restricted to type combination |
+| UD | Uniform Design: Uniformly chosoes candidates across all types |
+| RD | Restricted Design: Uniformly chooses candidates restricted to type combination |
 | PD | Permuted Design: Permute candidates of type combination, fix order and select candidates along the fixed order |
 | OD | Optimal Design: Tries all candidates, picks the one maximizing Information gain (KL divergence) |
 
